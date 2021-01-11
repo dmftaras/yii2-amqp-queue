@@ -18,6 +18,15 @@ class BaseJob extends BaseObject
     }
 
     /**
+     * Get AMQP Message Instance
+     * @return mixed
+     */
+    public function getAmqpMsg()
+    {
+        return $this->_amqp_msg;
+    }
+
+    /**
      * Execute Job
      * @param Queue $queue
      */

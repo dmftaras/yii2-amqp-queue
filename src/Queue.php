@@ -145,4 +145,12 @@ class Queue extends Component implements BootstrapInterface
         // Loop as long as the channel has callbacks registered
         $this->_handler->listen();
     }
+
+    /**
+     * Move job into the error queue
+     */
+    public function fatal(BaseJob $job)
+    {
+        return $this->_handler->fatal((string)$job->getAmqpMsg()->body);
+    }
 }
