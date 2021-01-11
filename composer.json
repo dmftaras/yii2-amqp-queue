@@ -1,0 +1,24 @@
+{
+  "name": "dmftaras/amqp-queue",
+  "description": "AMQP Queue Yii 2 extension",
+  "type": "yii2-extension",
+  "keywords": ["yii2","amqp","queue", "extension"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Taras Kostetskyi",
+      "email": "dmftaras@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4.0",
+    "ext-json": "*",
+    "yiisoft/yii2": "*",
+    "php-amqplib/php-amqplib" : "^2.11"
+  },
+  "autoload": {
+    "psr-4": {
+      "dmftaras\\amqp_queue\\": "src/"
+    }
+  }
+}
