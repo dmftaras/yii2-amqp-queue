@@ -10,13 +10,13 @@ The preferred way to install this extension is through [composer](http://getcomp
 Either run
 
 ```
-php composer.phar require --prefer-dist dmftaras/yii2-amqp-queue "dev-master"
+php composer.phar require --prefer-dist dmftaras/amqp-queue "*"
 ```
 
 or add the following line to the require section of your `composer.json` file:
 
 ```
-"dmftaras/yii2-amqp-queue": "dev-master"
+"dmftaras/amqp-queue": "*"
 ```
 
 ## Requirements
