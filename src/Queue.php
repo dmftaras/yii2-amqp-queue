@@ -115,11 +115,10 @@ class Queue extends Component implements BootstrapInterface
 
     /**
      * Send heartbeat on each tick to keep RabbitMQ connection alive
-     * @param \PhpAmqpLib\Connection\AMQPStreamConnection $connection
      */
-    public function checkHeartbeat($connection)
+    public function checkHeartbeat()
     {
-        $connection->checkHeartBeat();
+        $this->_handler->connection->checkHeartBeat();
     }
 
     /**
@@ -128,7 +127,7 @@ class Queue extends Component implements BootstrapInterface
      */
     public function listen()
     {
-        register_tick_function([&$this, "checkHeartbeat"], $this->_handler->connection);
+        register_tick_function([&$this, "checkHeartbeat"]);
 
         declare(ticks=2) {
             $this->_handler->consume(function($msg) {

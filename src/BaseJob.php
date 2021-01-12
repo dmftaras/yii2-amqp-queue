@@ -42,4 +42,13 @@ class BaseJob extends BaseObject
     {
         $this->_amqp_msg->delivery_info['channel']->basic_ack($this->_amqp_msg->delivery_info['delivery_tag']);
     }
+
+    /**
+     * Requeue Job for a new attempt
+     * @param BaseJob $job
+     */
+    public function requeue()
+    {
+        return $this->_handler->helper->error($this->_amqp_msg);
+    }
 }
