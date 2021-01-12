@@ -1,6 +1,9 @@
 <?php
 namespace dmftaras\amqp_queue;
 
+use PhpAmqpLib\Exception\AMQPChannelClosedException;
+use PhpAmqpLib\Exception\AMQPConnectionClosedException;
+use PhpAmqpLib\Exception\AMQPHeartbeatMissedException;
 use yii\base\BootstrapInterface;
 use yii\base\Component;
 use yii\base\InvalidArgumentException;
@@ -135,7 +138,13 @@ class Queue extends Component implements BootstrapInterface
                     /* @var BaseJob $job */
                     $job = new $message['class']($message['props']);
                     $job->setAmqpMsg($msg);
-                    $job->execute($this);
+                    try {
+                        $job->execute($this);
+                    } catch (AMQPHeartbeatMissedException | AMQPChannelClosedException | AMQPConnectionClosedException $e) {
+                        echo date("Y-m-d H:i:s") . " AMQP: missed heartbeat, restarting worker \n";
+
+                        exit(1);
+                    }
                 } else {
                     throw new InvalidArgumentException('class or props missing');
                 }
