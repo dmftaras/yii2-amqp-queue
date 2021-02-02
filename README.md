@@ -31,11 +31,11 @@ Once the extension is installed, set your configuration in common config file:
 
 ```php
     'components' => [
-        'test_queue' => [
-            'class' => \common\library\AMQP\Queue::class,
-            'queue_name' => 'test',
-            'exchange_name' => 'test',
-            'routing_key' => 'test'
+        'master_queue' => [
+            'class' => \dmftaras\amqp_queue\Queue::class,
+            'exchange_name' => 'master.tasks',
+            'queue_name' => 'master.tasks',
+            'routing_key' => 'master.tasks'
         ],
     ],
 ```
@@ -44,7 +44,7 @@ Add component to bootstrap section:
 
 ```php
     'bootstrap' => [
-        'test_queue'
+        'master_queue'
     ],
 ```
 

@@ -161,4 +161,13 @@ class Queue extends Component implements BootstrapInterface
     {
         return $this->_handler->fatal((string)$job->getAmqpMsg()->body);
     }
+
+    /**
+     * Requeue Job for a new attempt
+     * @param BaseJob $job
+     */
+    public function requeue(BaseJob $job)
+    {
+        $this->_handler->helper->error($job->getAmqpMsg());
+    }
 }
