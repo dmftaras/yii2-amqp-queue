@@ -28,30 +28,35 @@ class Queue extends Component implements BootstrapInterface
     public $max_attempts = 10;
     public $max_delay = 1000;
     public $delay_factor = 3;
+    public $enabled = true;
 
     /**
      * @var Handler
      */
     private $_handler;
 
+
     /**
-     * @inheritdoc
+     * Open connection
      */
-    public function init()
+    public function open()
     {
-        parent::init();
+        if (!$this->enabled) return false;
 
         $this->amqp = Instance::ensure($this->amqp, Connection::class);
-        $this->_handler = new Handler([
-            'exchange_name' => $this->exchange_name,
-            'queue_name'    => $this->queue_name,
-            'routing_key'   => $this->routing_key,
-            'helper_options' => [
-                'max_attempts' => $this->max_attempts,
-                'max_delay'    => $this->max_delay,
-                'factor'       => $this->delay_factor
-            ]
-        ]);
+
+        if (!$this->_handler) {
+            $this->_handler = new Handler([
+                'exchange_name' => $this->exchange_name,
+                'queue_name' => $this->queue_name,
+                'routing_key' => $this->routing_key,
+                'helper_options' => [
+                    'max_attempts' => $this->max_attempts,
+                    'max_delay' => $this->max_delay,
+                    'factor' => $this->delay_factor
+                ]
+            ]);
+        }
     }
 
     /**
@@ -87,6 +92,8 @@ class Queue extends Component implements BootstrapInterface
      */
     public function push(BaseJob $job)
     {
+        $this->open();
+
         return $this->_handler->publish(json_encode([
             'class' => get_class($job),
             'props'  => get_object_vars($job)
@@ -99,6 +106,8 @@ class Queue extends Component implements BootstrapInterface
      */
     public function batch_push(BaseJob $job)
     {
+        $this->open();
+
         return $this->_handler->batch_publish(json_encode([
             'class' => get_class($job),
             'props'  => get_object_vars($job)
@@ -110,6 +119,8 @@ class Queue extends Component implements BootstrapInterface
      */
     public function batch_submit()
     {
+        $this->open();
+
         return $this->_handler->batch_submit();
     }
 
@@ -127,6 +138,8 @@ class Queue extends Component implements BootstrapInterface
      */
     public function listen()
     {
+        $this->open();
+
         register_tick_function([&$this, "checkHeartbeat"]);
 
         declare(ticks=2) {
