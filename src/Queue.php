@@ -92,6 +92,7 @@ class Queue extends Component implements BootstrapInterface
      */
     public function push(BaseJob $job)
     {
+        if (!$this->enabled) return false;
         $this->open();
 
         return $this->_handler->publish(json_encode([
@@ -106,6 +107,7 @@ class Queue extends Component implements BootstrapInterface
      */
     public function batch_push(BaseJob $job)
     {
+        if (!$this->enabled) return false;
         $this->open();
 
         return $this->_handler->batch_publish(json_encode([
@@ -119,6 +121,7 @@ class Queue extends Component implements BootstrapInterface
      */
     public function batch_submit()
     {
+        if (!$this->enabled) return false;
         $this->open();
 
         return $this->_handler->batch_submit();
@@ -138,6 +141,7 @@ class Queue extends Component implements BootstrapInterface
      */
     public function listen()
     {
+        if (!$this->enabled) return false;
         $this->open();
 
         register_tick_function([&$this, "checkHeartbeat"]);
