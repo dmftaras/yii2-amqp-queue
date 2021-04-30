@@ -154,13 +154,7 @@ class Queue extends Component implements BootstrapInterface
                     /* @var BaseJob $job */
                     $job = new $message['class']($message['props']);
                     $job->setAmqpMsg($msg);
-                    try {
-                        $job->execute($this);
-                    } catch (AMQPHeartbeatMissedException | AMQPChannelClosedException | AMQPConnectionClosedException $e) {
-                        echo date("Y-m-d H:i:s") . " AMQP: missed heartbeat, restarting worker \n";
-
-                        exit(1);
-                    }
+                    $job->execute($this);
                 } else {
                     throw new InvalidArgumentException('class or props missing');
                 }
@@ -168,7 +162,13 @@ class Queue extends Component implements BootstrapInterface
         }
 
         // Loop as long as the channel has callbacks registered
-        $this->_handler->listen();
+        try {
+            $this->_handler->listen();
+        } catch (AMQPHeartbeatMissedException | AMQPChannelClosedException | AMQPConnectionClosedException $e) {
+            echo date("Y-m-d H:i:s") . " AMQP: missed heartbeat, restarting worker \n";
+
+            exit(1);
+        }
     }
 
     /**
