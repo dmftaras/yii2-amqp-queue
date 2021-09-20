@@ -43,7 +43,7 @@ class ExponentialBackoffHelper
 
     private $debug = false;
 
-    public function __construct(AMQPChannel $channel, $queue, $exchange, $routing_key, array $options = [])
+    public function __construct(AMQPChannel $channel, string $queue, string $exchange, string $routing_key, array $options = [])
     {
         $this->channel = $channel;
         $this->queue = $queue;
@@ -88,7 +88,7 @@ class ExponentialBackoffHelper
         if ($this->debug) echo "exbh[" . time() . "]: acknowledge \n";
     }
 
-    public function reject(AMQPMessage $message, $requeue = false)
+    public function reject(AMQPMessage $message, bool $requeue = false)
     {
         $this->retry($message);
         if ($this->debug) echo "exbh[" . time() . "]: rejected \n";
@@ -106,23 +106,28 @@ class ExponentialBackoffHelper
         if ($this->debug) echo "exbh[" . time() . "]: timeout \n";
     }
 
+    public function delay(AMQPMessage $message, int $delay)
+    {
+        $routing_key = $this->queue . '.' . $delay;
+
+        $queue = $this->createDelayQueue($delay);
+        if ($this->debug) echo "exbh[" . time() . "]: creating queue {$queue} \n";
+
+        $this->channel->queue_bind($queue, $this->exchange, $routing_key);
+        if ($this->debug) echo "exbh[" . time() . "]: binding exchange {$this->exchange} via routing {$routing_key} to queue {$queue} \n";
+
+        $this->channel->basic_publish($message, $this->exchange, $routing_key);
+        if ($this->debug) echo "exbh[" . time() . "]: publishing \n";
+    }
+
     private function retry(AMQPMessage $message)
     {
         $attempts = $this->deaths($message);
 
         if ($attempts < $this->max_attempts) {
-            $delay = $this->delay($attempts);
+            $delay = $this->calc_delay($attempts);
 
-            $routing_key = $this->queue . '.' . $delay;
-
-            $queue = $this->createRetryQueue($delay);
-            if ($this->debug) echo "exbh[" . time() . "]: creating queue {$queue} \n";
-
-            $this->channel->queue_bind($queue, $this->exchange, $routing_key);
-            if ($this->debug) echo "exbh[" . time() . "]: binding exchange {$this->exchange} via routing {$routing_key} to queue {$queue} \n";
-
-            $this->channel->basic_publish($message, $this->exchange, $routing_key);
-            if ($this->debug) echo "exbh[" . time() . "]: publishing \n";
+            $this->delay($message, $delay);
 
             $this->acknowledge($message);
         } else {
@@ -149,9 +154,9 @@ class ExponentialBackoffHelper
         return $count;
     }
 
-    private function createRetryQueue($delay)
+    private function createDelayQueue(int $delay)
     {
-        $queue = $this->queue . '.retry.' . $delay;
+        $queue = $this->queue . '.delay.' . $delay;
 
         $this->channel->queue_declare($queue, false, true, false, false, false, [
             'x-dead-letter-exchange' => ['S', $this->exchange],
@@ -163,7 +168,7 @@ class ExponentialBackoffHelper
         return $queue;
     }
 
-    public function delay($attempts)
+    public function calc_delay(int $attempts)
     {
         return min($this->max_delay, ($attempts + 1) ** $this->factor);
     }

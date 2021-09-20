@@ -90,7 +90,7 @@ class Queue extends Component implements BootstrapInterface
      * Add job into the queue
      * @param BaseJob $job
      */
-    public function push(BaseJob $job)
+    public function push(BaseJob $job, ?int $delay = null)
     {
         if (!$this->enabled) return false;
         $this->open();
@@ -98,7 +98,7 @@ class Queue extends Component implements BootstrapInterface
         return $this->_handler->publish(json_encode([
             'class' => get_class($job),
             'props'  => get_object_vars($job)
-        ]));
+        ]), $delay);
     }
 
     /**

@@ -146,11 +146,17 @@ class Handler extends Component
      * Publish a new message
      * @param string $msg
      */
-    public function publish(string $msg)
+    public function publish(string $msg, ?int $delay = null)
     {
         $new_msg = new AMQPMessage($msg, [
             'delivery_mode' => AMQPMessage::DELIVERY_MODE_PERSISTENT
         ]);
+
+        if ($delay) {
+            $this->helper->delay($new_msg, $delay);
+            return;
+        }
+
         $this->channel->basic_publish($new_msg, $this->_exchange_name . '.exchange', $this->_routing_key);
     }
 
