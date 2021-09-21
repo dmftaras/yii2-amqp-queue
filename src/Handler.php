@@ -153,6 +153,7 @@ class Handler extends Component
         ]);
 
         if ($delay) {
+            $this->_init_helper();
             $this->helper->delay($new_msg, $delay);
             return;
         }
