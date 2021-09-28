@@ -92,13 +92,22 @@ class Queue extends Component implements BootstrapInterface
      */
     public function push(BaseJob $job, ?int $delay = null)
     {
+        return $this->push_raw(json_encode([
+            'class' => get_class($job),
+            'props'  => get_object_vars($job)
+        ], $delay));
+    }
+
+    /**
+     * Add raw message into the queue
+     * @param string $message
+     */
+    public function push_raw(string $message, ?int $delay = null)
+    {
         if (!$this->enabled) return false;
         $this->open();
 
-        return $this->_handler->publish(json_encode([
-            'class' => get_class($job),
-            'props'  => get_object_vars($job)
-        ]), $delay);
+        return $this->_handler->publish($message, $delay);
     }
 
     /**
@@ -107,13 +116,22 @@ class Queue extends Component implements BootstrapInterface
      */
     public function batch_push(BaseJob $job)
     {
-        if (!$this->enabled) return false;
-        $this->open();
-
-        return $this->_handler->batch_publish(json_encode([
+        return $this->batch_push_raw(json_encode([
             'class' => get_class($job),
             'props'  => get_object_vars($job)
         ]));
+    }
+
+    /**
+     * Prepare batch message
+     * @param BaseJob $job
+     */
+    public function batch_push_raw(string $message)
+    {
+        if (!$this->enabled) return false;
+        $this->open();
+
+        return $this->_handler->batch_publish($message);
     }
 
     /**
