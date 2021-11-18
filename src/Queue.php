@@ -95,7 +95,7 @@ class Queue extends Component implements BootstrapInterface
         return $this->push_raw(json_encode([
             'class' => get_class($job),
             'props'  => get_object_vars($job)
-        ], $delay));
+        ]), $delay);
     }
 
     /**
