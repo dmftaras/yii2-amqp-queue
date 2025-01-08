@@ -11,14 +11,25 @@
     }
   ],
   "require": {
-    "php": ">=7.4.0",
+    "php": ">=8.2.0",
     "ext-json": "*",
-    "yiisoft/yii2": "*",
-    "php-amqplib/php-amqplib" : "^2.11"
+    "yiisoft/yii2": ">=2.0.51",
+    "php-amqplib/php-amqplib" : "^3.7"
   },
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "https://asset-packagist.org"
+    }
+  ],
   "autoload": {
     "psr-4": {
       "dmftaras\\amqp_queue\\": "src/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true
     }
   }
 }
